@@ -11,6 +11,6 @@ urlpatterns = [
     path("user-homepage/", user_homepage, name="user_homepage"),
     path('add-recipe/', add_recipe, name='add_recipe'),
     path('api/recipes/', get_recipes, name='get_recipes'),
-    path('logout/', user_logout, name='logout'),
     path("edit-recipe/<int:recipe_id>/", edit_recipe, name="edit_recipe"),
+    path('logout/', user_logout, name='logout'),
 ]
