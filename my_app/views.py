@@ -1,12 +1,12 @@
-from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .forms import ChefSignUpForm, UserSignUpForm, RecipeForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from .models import UserAccount, Recipe
-from django.urls import reverse
+from .models import Recipe
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Landingpage
@@ -66,10 +66,8 @@ def user_signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            print(f"✅ Logged in user: {user}")
             return redirect("user_homepage")  
         else:
-            print(f"❌ Signup errors: {form.errors}")
             return render(request, "landingpage.html", {"form": form, "errors": form.errors})
     else:
         form = UserSignUpForm()
@@ -86,7 +84,7 @@ def user_login(request):
         user = User.objects.filter(email=email).first()
         if user and authenticate(request, username=user.username, password=password):
             login(request, user)
-            return redirect("user_homepage")  
+            return redirect("user_homepage") 
         else:
             return render(request, "landingpage.html", {"error": "Invalid email or password"})
 
@@ -100,7 +98,7 @@ def add_recipe(request):
         form = RecipeForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('chef_homepage') 
+            return redirect('chef_homepage')
     else:
         form = RecipeForm()
     return render(request, 'chefhomepage.html', {'form': form})
@@ -109,6 +107,23 @@ def add_recipe(request):
 def get_recipes(request):
     recipes = Recipe.objects.all().values('id', 'name', 'description', 'image')
     return JsonResponse(list(recipes), safe=False)
+
+
+# Edit Recipe
+@csrf_exempt
+def edit_recipe(request, recipe_id):
+    if request.method == "POST":
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        recipe.name = request.POST.get("name")
+        recipe.description = request.POST.get("description")
+
+        if "image" in request.FILES:
+            recipe.image = request.FILES["image"]
+
+        recipe.save()
+        return JsonResponse({"success": True})
+    
+    return JsonResponse({"success": False, "error": "Invalid request method"})
 
 
 # Log out view
