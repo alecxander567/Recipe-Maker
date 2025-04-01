@@ -1,0 +1,185 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Homepage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            background: #CFFFDC
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #253D2C;
+            color: white;
+            position: fixed;
+            padding-top: 20px;
+            text-align: center;
+        }
+        .sidebar .profile {
+            padding: 20px;
+        }
+        .sidebar .profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+        .sidebar .profile h5 {
+            margin: 0;
+        }
+        .sidebar a {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .sidebar a:hover {
+            background: #495057;
+        }
+        .bi-book { color: #ffdd57; } /* Yellow */
+        .bi-plus-circle { color: #28a745; } /* Green */
+        .bi-star { color: #ffc107; } /* Gold */
+        .bi-box-arrow-right { color: #dc3545; } /* Red */
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+        /* Recipe card container */
+        #recipeContainer {
+            display: flex;
+            flex-wrap: wrap; /* Allows wrapping if needed */
+            gap: 10px; /* Space between recipes */
+            justify-content: flex-start; /* Aligns recipes to the left */
+        }
+        .recipe-card {
+            width: 220px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            overflow: hidden;
+            background-color: #253D2C;
+            transition: all 0.3s ease-in-out;
+            padding-bottom: 10px;
+            height: 350px;
+        }
+        
+        /* Image styling */
+        .recipe-card-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        /* Card body */
+        .recipe-card-body {
+            padding: 10px;
+        }
+        
+        /* Title of the recipe */
+        .recipe-card-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        /* Description of the recipe */
+        .recipe-card-description {
+            font-size: 0.9rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        /* Hover effect */
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .recipe-card.expanded {
+            height: auto;
+        }
+        .recipe-card-actions {
+            display: flex;
+            flex-direction: column; 
+            gap: 8px; 
+            margin-top: 10px;
+        }        
+        .recipe-card-actions .btn {
+            width: 90%;
+            text-align: center;
+            margin: auto;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile">
+            <img src="{% static 'img/userprof.avif' %}" class="img-fluid mb-3" style="border-radius: 50%;">
+            <h5>Username</h5>
+        </div>
+        <a href="#"><i class="bi bi-book"></i> My Recipes</a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+            <i class="bi bi-plus-circle"></i> Add new recipe
+        </a>
+        <a href="#"><i class="bi bi-star"></i> Top rating recipes</a>
+        <a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Log out</a>
+    </div>
+    <div class="content">
+        <h1 style="font-family: cursive; font-weight: 900;">
+            <i class="bi bi-egg-fried"></i> Welcome Chef, what's cooking?
+        </h1>
+        <div id="recipeContainer"></div>
+    </div>
+
+<!-- Add Recipe Modal -->
+<div class="modal fade" id="addRecipeModal" tabindex="-1" aria-labelledby="addRecipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addRecipeModalLabel">Add New Recipe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="recipeForm" method="post" enctype="multipart/form-data" action="{% url 'add_recipe' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="recipeName" class="form-label">Recipe Name</label>
+              <input type="text" class="form-control" name="name" id="recipeName" required>
+            </div>
+            <div class="mb-3">
+              <label for="recipeDescription" class="form-label">Description</label>
+              <textarea class="form-control" name="description" id="recipeDescription" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="recipeImage" class="form-label">Upload Image</label>
+              <input type="file" class="form-control" name="image" id="recipeImage" accept="image/*" required>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn" style="background: #253D2C; color: white;">Add Recipe</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% load static %}
+<script src="{% static 'js/get_recipes.js' %}"></script>
+</body>
+</html>

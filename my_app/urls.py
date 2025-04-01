@@ -1,0 +1,15 @@
+from django.urls import path
+from .views import landingpage, chef_signup, chef_login, chef_homepage, user_signup, user_login, user_homepage, user_logout, add_recipe, get_recipes
+
+urlpatterns = [
+    path('landingpage/', landingpage, name='landingpage'),
+    path('chef-signup/', chef_signup, name='chef_signup'),
+    path("chef-login/", chef_login, name="chef_login"),
+    path("chef-homepage/", chef_homepage, name="chef_homepage"),
+    path('signup/', user_signup, name='user_signup'),
+    path("user-login/", user_login, name="user_login"),
+    path("user-homepage/", user_homepage, name="user_homepage"),
+    path('add-recipe/', add_recipe, name='add_recipe'),
+    path('api/recipes/', get_recipes, name='get_recipes'),
+    path('logout/', user_logout, name='logout'),
+]
