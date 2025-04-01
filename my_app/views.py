@@ -86,7 +86,7 @@ def user_login(request):
         user = User.objects.filter(email=email).first()
         if user and authenticate(request, username=user.username, password=password):
             login(request, user)
-            return redirect("user_homepage")  # Redirect to user homepage
+            return redirect("user_homepage")  
         else:
             return render(request, "landingpage.html", {"error": "Invalid email or password"})
 
@@ -100,7 +100,7 @@ def add_recipe(request):
         form = RecipeForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('chef_homepage')  # Change to the appropriate URL
+            return redirect('chef_homepage') 
     else:
         form = RecipeForm()
     return render(request, 'chefhomepage.html', {'form': form})
