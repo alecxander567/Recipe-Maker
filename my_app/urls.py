@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import landingpage, chef_signup, chef_login, chef_homepage, user_signup, user_login, user_homepage, user_logout, add_recipe, get_recipes, edit_recipe
+from .views import landingpage, chef_signup, chef_login, chef_homepage, user_signup, user_login, user_homepage, user_logout, add_recipe, get_recipes, edit_recipe,  delete_recipe
 
 urlpatterns = [
     path('landingpage/', landingpage, name='landingpage'),
@@ -12,5 +12,6 @@ urlpatterns = [
     path('add-recipe/', add_recipe, name='add_recipe'),
     path('api/recipes/', get_recipes, name='get_recipes'),
     path("edit-recipe/<int:recipe_id>/", edit_recipe, name="edit_recipe"),
-    path('logout/', user_logout, name='logout'),
+    path('delete-recipe/<int:recipe_id>/', delete_recipe, name='delete_recipe'),
+    path('logout/', user_logout, name='logout'),  
 ]
