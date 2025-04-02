@@ -7,6 +7,7 @@ from .models import Recipe
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 
 # Landingpage
@@ -104,6 +105,7 @@ def add_recipe(request):
     return render(request, 'chefhomepage.html', {'form': form})
 
 
+# Display recipes
 def get_recipes(request):
     recipes = Recipe.objects.all().values('id', 'name', 'description', 'image')
     return JsonResponse(list(recipes), safe=False)
@@ -124,6 +126,19 @@ def edit_recipe(request, recipe_id):
         return JsonResponse({"success": True})
     
     return JsonResponse({"success": False, "error": "Invalid request method"})
+
+
+# Delete recipe function
+def delete_recipe(request, recipe_id):
+    if request.method == "DELETE":
+        try:
+            recipe = get_object_or_404(Recipe, id=recipe_id)
+            recipe.delete()
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+
+    return JsonResponse({"success": False, "error": "Invalid request method."})
 
 
 # Log out view
