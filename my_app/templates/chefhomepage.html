@@ -61,7 +61,6 @@
         #recipeContainer {
             display: flex;
             flex-wrap: wrap; /* Allows wrapping if needed */
-            gap: 10px; /* Space between recipes */
             justify-content: flex-start; /* Aligns recipes to the left */
         }
         .recipe-card {
@@ -148,6 +147,7 @@
             Welcome Chef, what's cooking?
         </h1>
         <hr style="border: 2px solid;">
+
         <div id="recipeContainer" style="margin-top: 20px;"></div>
     </div>
 
@@ -221,7 +221,6 @@
   </div>
   
 
-{% load static %}
 <script src="{% static 'js/get_recipes.js' %}"></script>
 </body>
 </html>
