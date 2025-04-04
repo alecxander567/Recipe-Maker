@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import make_password, check_password
 class ChefProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
+    profile_picture = models.ImageField(upload_to='profile_pics/', default='profile_pics/userprof.avif')
 
     def __str__(self):
         return self.full_name

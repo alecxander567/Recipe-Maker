@@ -3,11 +3,12 @@ from django.contrib.auth import authenticate, login, logout
 from .forms import ChefSignUpForm, UserSignUpForm, RecipeForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from .models import Recipe
+from .models import Recipe, ChefProfile
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from .forms import ProfileUpdateForm
 
 
 # Landingpage
@@ -17,7 +18,23 @@ def landingpage(request):
 
 @login_required
 def chef_homepage(request):
-    return render(request, "chefhomepage.html") 
+    chef_profile = request.user.chefprofile
+
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=chef_profile)
+
+        if 'remove_picture' in request.POST:
+            chef_profile.profile_picture.delete()
+            chef_profile.save()
+            return redirect('chef_homepage')
+        elif form.is_valid():
+            form.save()
+            return redirect('chef_homepage')
+
+    else:
+        form = ProfileUpdateForm(instance=chef_profile)
+
+    return render(request, 'chefhomepage.html', {'form': form, 'chef_profile': chef_profile})
 
 
 @login_required
