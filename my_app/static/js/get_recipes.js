@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("DOM fully loaded");
-
     // Fetch recipes and render them
     fetchRecipes();
 
@@ -143,3 +141,4 @@ function fetchRecipes() {
         })
     .catch(error => console.error("Error fetching recipes:", error));
 }
+
