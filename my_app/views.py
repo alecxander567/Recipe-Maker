@@ -16,6 +16,7 @@ def landingpage(request):
     return render(request, 'landingpage.html')
 
 
+# Chef homepage
 @login_required
 def chef_homepage(request):
     chef_profile = request.user.chefprofile
@@ -37,6 +38,7 @@ def chef_homepage(request):
     return render(request, 'chefhomepage.html', {'form': form, 'chef_profile': chef_profile})
 
 
+# User homepage
 @login_required
 def user_homepage(request):
     return render(request, "userhomepage.html") 
