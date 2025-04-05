@@ -77,8 +77,84 @@
             background: #495057; /* Soft dark hover */
             color: #fff;
         }
+        #recipeContainer {
+            display: flex;
+            justify-content: flex-wrap;
+            justify-content: flex-start;
+            margin-left: 200px;
+        }
+    
+        .recipe-card {
+            width: 220px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            overflow: hidden;
+            background-color: #253D2C;
+            transition: all 0.3s ease-in-out; /* Smooth transition for the card expansion */
+            height: 350px; /* Initial fixed height */
+        }
         
-
+        /* Image styling */
+        .recipe-card-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        /* Card body */
+        .recipe-card-body {
+            padding: 10px;
+        }
+        
+        /* Title of the recipe */
+        .recipe-card-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        /* Description of the recipe */
+        .recipe-card-description {
+            font-size: 0.9rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        /* Hover effect */
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+    
+        .recipe-card.expanded {
+            height: auto;
+        }
+    
+        .recipe-card-actions {
+            display: flex;
+            flex-direction: column; 
+            gap: 8px; 
+            margin-top: 10px;
+        }
+    
+        .recipe-card-actions .btn {
+            width: 90%;
+            text-align: center;
+            margin: auto;
+        }
+        .recipe-header {
+            margin-left: 250px; /* Adjust this value based on the sidebar width */
+            padding-left: 20px; /* Optional: adds some padding to make it look more centered within the container */
+            font-family: cursive;
+            font-weight: 900;
+        }
+        .recipe-card .recipe-card-body {
+            padding: 10px;
+            transition: padding 0.3s ease-in-out; /* Smooth transition for padding change */
+        }
     </style>
 </head>
 <div class="sidebar">
@@ -90,9 +166,7 @@
             <img src="{% static 'img/user-icon.avif' %}" alt="Default Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
         {% endif %}
 
-        <div class="email-container mb-3">
-            <h5>{{ user_account.email }}</h5>
-        </div>
+        <h5>User</h5>
 
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
@@ -122,6 +196,78 @@
       </a>      
   </div>
 
-<script src="{% static 'js/get_recipes.js' %}"></script>
+  <div class="container">
+    <!-- Check if recipes exist -->
+    {% if recipes %}
+        <img src="{% static 'img/happy-chef-vector-icon.png' %}" class="img-fluid rounded" width="50" height="50" style="position: absolute; left: 270px; top: 10px;">
+        <h1 class="recipe-header mt-3">Recipes by Chef {{ chef_profile.full_name }}</h1>
+        <hr style="width: 60%; margin-left: 250px; border: 2px solid;">
+        <!-- Recipe Container -->
+        <div id="recipeContainer">
+            {% for recipe in recipes %}
+                <div class="recipe-card">
+                    <img src="{{ recipe.image.url }}" class="recipe-card-img" alt="{{ recipe.name }}">
+                    <div class="recipe-card-body">
+                        <h5 class="recipe-card-title">{{ recipe.name }}</h5>
+                        
+                        <!-- Description (Initially Hidden) -->
+                        <p class="recipe-card-description" id="desc-{{ recipe.id }}" style="display: none;">{{ recipe.description }}</p>
+                        
+                        <!-- Toggle Button for Description -->
+                        <button class="btn btn-primary w-100 mt-3" onclick="toggleDescription({{ recipe.id }})">
+                            View Full Recipe
+                        </button>
+                        
+                        <!-- Add to Favorites and Share Recipe Buttons (Vertically Aligned) -->
+                        <div class="recipe-card-actions d-flex flex-column gap-2 mt-2">
+                            <form action="#" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning w-100">Add to Favorites</button>
+                            </form>
+                            <button class="btn btn-info w-100" onclick="shareRecipe('{{ recipe.name }}')">Share Recipe</button>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-center">No recipes available.</p>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You are not a chef and don't have any recipes to display.</p>
+    {% endif %}
+</div>
+
+<!-- JavaScript to toggle description visibility and expand the card -->
+<script>
+    function toggleDescription(recipeId) {
+        var descElement = document.getElementById('desc-' + recipeId);
+        var recipeCard = descElement.closest('.recipe-card');  // Get the closest recipe card
+        
+        // Toggle description visibility
+        if (descElement.style.display === "none") {
+            descElement.style.display = "block";  // Show description
+            recipeCard.style.height = 'auto';  // Allow card to expand
+        } else {
+            descElement.style.display = "none";  // Hide description
+            recipeCard.style.height = '';  // Reset height (card will shrink)
+        }
+    }
+
+    // Function to handle sharing the recipe
+    function shareRecipe(recipeName) {
+        const shareMessage = `Check out this amazing recipe: ${recipeName}!`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Recipe Share',
+                text: shareMessage,
+                url: window.location.href
+            }).catch((error) => console.error('Error sharing:', error));
+        } else {
+            alert('Sharing not supported in your browser!');
+        }
+    }
+</script>
+
 </body>
 </html>
