@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from .forms import ChefSignUpForm, UserSignUpForm, RecipeForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from .models import Recipe, UserAccount
+from .models import Recipe, UserAccount, ChefProfile
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -38,27 +38,70 @@ def chef_homepage(request):
     return render(request, 'chefhomepage.html', {'form': form, 'chef_profile': chef_profile})
 
 
-# User homepage
 @login_required
 def user_homepage(request):
+    # First, check if the user has a UserAccount (regular user)
+    user_account = None
+    chef_profile = None
+    is_regular_user = False
+    is_chef = False
+    
+    # Try to get user_account
     try:
         user_account = UserAccount.objects.get(user=request.user)
-    except ObjectDoesNotExist:
-        user_account = UserAccount.objects.create(user=request.user)
-
+        is_regular_user = True
+    except UserAccount.DoesNotExist:
+        pass
+    
+    # Try to get chef_profile
+    try:
+        chef_profile = ChefProfile.objects.get(user=request.user)
+        is_chef = True
+    except ChefProfile.DoesNotExist:
+        pass
+    
+    # Get recipes only if user is a chef
+    recipes = []
+    if chef_profile:
+        recipes = Recipe.objects.filter(chef=chef_profile)
+    
+    # Handle profile picture upload or removal
     if request.method == 'POST' and request.FILES.get('profile_picture'):
-        user_account.profile_picture = request.FILES['profile_picture']
-        user_account.save()
+        if user_account:
+            user_account.profile_picture = request.FILES['profile_picture']
+            user_account.save()
         return redirect('user_homepage')
     
     if request.method == 'POST' and 'remove_picture' in request.POST:
-        user_account.profile_picture = None
-        user_account.save()
+        if user_account:
+            user_account.profile_picture = None
+            user_account.save()
         return redirect('user_homepage')
+    
+    # Determine which username to show
+    if is_regular_user:
+        display_name = user_account.username
+        display_email = user_account.email  # Get email from UserAccount
+    elif is_chef:
+        display_name = chef_profile.full_name
+        display_email = ""  # No email for chefs
+    else:
+        display_name = "Unknown"
+        display_email = ""
+    
+    context = {
+        'user_account': user_account,
+        'chef_profile': chef_profile,
+        'recipes': recipes,
+        'is_regular_user': is_regular_user,
+        'is_chef': is_chef,
+        'display_name': display_name,
+        'display_email': display_email,
+    }
+    
+    return render(request, 'userhomepage.html', context)
 
-    return render(request, 'userhomepage.html', {'user_account': user_account})
-
-
+    
 # Chef sign up
 def chef_signup(request):
     if request.method == "POST":
