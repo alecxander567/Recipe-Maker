@@ -1,1 +1,127 @@
-Welcome!
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Homepage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            background: #CFFFDC
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #253D2C; /* Dark green theme */
+            color: white;
+            position: fixed;
+            padding-top: 20px;
+            text-align: center;
+            overflow-y: auto;
+        }
+        
+        .sidebar .profile {
+            padding: 20px;
+        }
+        
+        .sidebar .profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+        
+        .email-container {
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            text-align: center;
+            padding: 5px;
+            white-space: normal;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        
+        /* Buttons inside the profile section */
+        .sidebar .profile button {
+            margin-top: 8px;
+            width: 100%;
+            font-size: 14px;
+        }
+        
+        /* Sidebar links */
+        .sidebar a {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* Hover effect */
+        .sidebar a:hover {
+            background: #495057; /* Soft dark hover */
+            color: #fff;
+        }
+        
+
+    </style>
+</head>
+<div class="sidebar">
+    <div class="profile">
+            <!-- user_homepage.html -->
+        {% if user_account.profile_picture %}
+            <img src="{{ user_account.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+        {% else %}
+            <img src="{% static 'img/user-icon.avif' %}" alt="Default Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+        {% endif %}
+
+        <div class="email-container mb-3">
+            <h5>{{ user_account.email }}</h5>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" id="profile_picture" name="profile_picture" style="display: none;" onchange="this.form.submit()">
+            <button type="button" class="btn btn-success" onclick="document.getElementById('profile_picture').click()">Update Profile Picture</button>
+            
+            {% if user_account.profile_picture %}
+                <button type="submit" name="remove_picture" class="btn btn-danger" style="margin-top: 5px;">Remove Profile Picture</button>
+            {% endif %}
+        </form>
+
+      </div>
+    <a href="#" onclick="location.reload();">
+        <i class="bi bi-book" style="color: #FFC107;"></i> My Saved Recipes
+      </a>   
+      <a href="#" data-bs-toggle="modal" data-bs-target="#chefsModal">
+        <i class="bi bi-person-check" style="color: #28A745;"></i> View Chefs
+    </a>      
+    <a href="">
+        <i class="bi bi-star" style="color: #FFD700;"></i> Trending Recipes
+      </a>
+      <a href="#">
+        <i class="bi bi-people" style="color: #17A2B8;"></i> My Friends
+      </a>
+      <a href="{% url 'logout' %}">
+        <i class="bi bi-box-arrow-right" style="color: #DC3545;"></i> Log out
+      </a>      
+  </div>
+
+<script src="{% static 'js/get_recipes.js' %}"></script>
+</body>
+</html>
