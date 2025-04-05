@@ -45,7 +45,7 @@ def user_homepage(request):
     chef_profile = None
     is_regular_user = False
     is_chef = False
-    
+
     if request.user.is_authenticated:
         try:
             user_account = UserAccount.objects.get(user=request.user)
@@ -69,9 +69,10 @@ def user_homepage(request):
         recipe_id = request.POST.get('recipe_id')
         recipe = Recipe.objects.get(id=recipe_id)
 
-        FavoriteRecipe.objects.create(user=user_account, recipe=recipe)
-        
-        messages.success(request, 'Recipe added to favorites successfully!')
+        # Ensure the user is logged in
+        if user_account:
+            FavoriteRecipe.objects.create(user=user_account, recipe=recipe)
+            messages.success(request, 'Recipe added to favorites successfully!')
 
         return redirect('user_homepage') 
 
@@ -82,13 +83,14 @@ def user_homepage(request):
             user_account.profile_picture = request.FILES['profile_picture']
             user_account.save()
         return redirect('user_homepage')
-    
+
     if request.method == 'POST' and 'remove_picture' in request.POST:
         if user_account:
             user_account.profile_picture = None
             user_account.save()
         return redirect('user_homepage')
 
+    # Determine user details for display
     if is_regular_user:
         display_name = user_account.username
         display_email = user_account.email 
@@ -98,7 +100,7 @@ def user_homepage(request):
     else:
         display_name = "Unknown"
         display_email = ""
-    
+
     context = {
         'user_account': user_account,
         'chef_profile': chef_profile,
@@ -109,8 +111,9 @@ def user_homepage(request):
         'display_name': display_name,
         'display_email': display_email,
     }
-    
+
     return render(request, 'userhomepage.html', context)
+
 
     
 # Chef sign up
