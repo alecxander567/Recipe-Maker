@@ -69,7 +69,6 @@ def user_homepage(request):
         recipe_id = request.POST.get('recipe_id')
         recipe = Recipe.objects.get(id=recipe_id)
 
-        # Ensure the user is logged in
         if user_account:
             FavoriteRecipe.objects.create(user=user_account, recipe=recipe)
             messages.success(request, 'Recipe added to favorites successfully!')
@@ -90,7 +89,6 @@ def user_homepage(request):
             user_account.save()
         return redirect('user_homepage')
 
-    # Determine user details for display
     if is_regular_user:
         display_name = user_account.username
         display_email = user_account.email 
@@ -114,8 +112,7 @@ def user_homepage(request):
 
     return render(request, 'userhomepage.html', context)
 
-
-    
+ 
 # Chef sign up
 def chef_signup(request):
     if request.method == "POST":
