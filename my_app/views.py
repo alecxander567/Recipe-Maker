@@ -37,35 +37,30 @@ def chef_homepage(request):
 
     return render(request, 'chefhomepage.html', {'form': form, 'chef_profile': chef_profile})
 
-
+# User homepage
 @login_required
 def user_homepage(request):
-    # First, check if the user has a UserAccount (regular user)
     user_account = None
     chef_profile = None
     is_regular_user = False
     is_chef = False
     
-    # Try to get user_account
     try:
         user_account = UserAccount.objects.get(user=request.user)
         is_regular_user = True
     except UserAccount.DoesNotExist:
         pass
     
-    # Try to get chef_profile
     try:
         chef_profile = ChefProfile.objects.get(user=request.user)
         is_chef = True
     except ChefProfile.DoesNotExist:
         pass
     
-    # Get recipes only if user is a chef
     recipes = []
     if chef_profile:
         recipes = Recipe.objects.filter(chef=chef_profile)
-    
-    # Handle profile picture upload or removal
+
     if request.method == 'POST' and request.FILES.get('profile_picture'):
         if user_account:
             user_account.profile_picture = request.FILES['profile_picture']
@@ -77,14 +72,13 @@ def user_homepage(request):
             user_account.profile_picture = None
             user_account.save()
         return redirect('user_homepage')
-    
-    # Determine which username to show
+   
     if is_regular_user:
         display_name = user_account.username
-        display_email = user_account.email  # Get email from UserAccount
+        display_email = user_account.email 
     elif is_chef:
         display_name = chef_profile.full_name
-        display_email = ""  # No email for chefs
+        display_email = "" 
     else:
         display_name = "Unknown"
         display_email = ""
