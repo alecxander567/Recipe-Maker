@@ -3,12 +3,12 @@ from django.contrib.auth import authenticate, login, logout
 from .forms import ChefSignUpForm, UserSignUpForm, RecipeForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from .models import Recipe, ChefProfile
+from .models import Recipe, UserAccount
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 from .forms import ProfileUpdateForm
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # Landingpage
@@ -41,7 +41,22 @@ def chef_homepage(request):
 # User homepage
 @login_required
 def user_homepage(request):
-    return render(request, "userhomepage.html") 
+    try:
+        user_account = UserAccount.objects.get(user=request.user)
+    except ObjectDoesNotExist:
+        user_account = UserAccount.objects.create(user=request.user)
+
+    if request.method == 'POST' and request.FILES.get('profile_picture'):
+        user_account.profile_picture = request.FILES['profile_picture']
+        user_account.save()
+        return redirect('user_homepage')
+    
+    if request.method == 'POST' and 'remove_picture' in request.POST:
+        user_account.profile_picture = None
+        user_account.save()
+        return redirect('user_homepage')
+
+    return render(request, 'userhomepage.html', {'user_account': user_account})
 
 
 # Chef sign up
