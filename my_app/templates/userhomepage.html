@@ -177,15 +177,45 @@
             font-size: 1.5rem;
             margin-right: 10px; /* Space between icon and message */
         }
+        #loader {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Ensure it's on top */
+        }
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+         @keyframes spin {
+           0% { transform: rotate(0deg); }
+           100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
 <div class="sidebar">
     <div class="profile">
             <!-- user_homepage.html -->
-        {% if user_account.profile_picture %}
-            <img src="{{ user_account.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
-        {% else %}
-            <img src="{% static 'img/user-icon.avif' %}" alt="Default Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+            {% if user_account %}
+            {% if user_account.profile_picture %}
+                <img src="{{ user_account.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+            {% else %}
+                <img src="{% static 'img/user-icon.avif' %}" alt="Default Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+            {% endif %}
         {% endif %}
 
         <h5>User</h5>
@@ -221,9 +251,12 @@
   <div class="container">
     <!-- Check if recipes exist -->
     {% if recipes %}
-        <img src="{% static 'img/happy-chef-vector-icon.png' %}" class="img-fluid rounded" width="50" height="50" style="position: absolute; left: 270px; top: 10px;">
-        <h1 class="recipe-header mt-3">Recipes by Chef {{ chef_profile.full_name }}</h1>
-        <hr style="width: 60%; margin-left: 250px; border: 2px solid;">
+        <!-- Chef's Image and Name -->
+        {% if recipes.0.chef %}
+            <img src="{% static 'img/happy-chef-vector-icon.png' %}" class="img-fluid rounded" width="50" height="50" style="position: absolute; left: 270px; top: 10px;">
+            <h1 class="recipe-card-chef" style="position: absolute; left: 330px; top: 20px; font-family: cursive; font-weight: 900;">Recipes By Chef {{ recipes.0.chef.full_name }}</h1>
+            <hr style="width: 80%; margin-left: 190px; border: 2px solid; margin-top: 90px;">
+        {% endif %}
         <!-- Recipe Container -->
         <div id="recipeContainer">
             {% for recipe in recipes %}
@@ -283,15 +316,19 @@
             <div class="modal-body">
                 <ul id="favorites-list">
                     {% for favorite in favorite_recipes %}
-                        <li style="margin-top: 10px;">
-                            {{ favorite.recipe.name }} - {{ favorite.recipe.description }}
-                            <form action="{% url 'delete_favorite' %}" method="POST">
+                    <li style="margin-top: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                        <img src="{{ favorite.recipe.image.url }}" alt="{{ favorite.recipe.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-top: 5px;">
+                        <div>
+                            <div><strong>{{ favorite.recipe.name }}</strong> - {{ favorite.recipe.description }}</div>
+                            <form action="{% url 'delete_favorite' %}" method="POST" style="margin-top: 10px;">
                                 {% csrf_token %}
                                 <input type="hidden" name="_method" value="DELETE">
                                 <input type="hidden" name="recipe_id" value="{{ favorite.recipe.id }}">
-                                <button type="submit" class="btn btn-danger btn-sm" style="margin-top: 10px;">Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm" style="float: right; margin-right: 30px; margin-top: -40px;">Delete</button>
+                                <hr style="margin-top: 30px;">
                             </form>
-                        </li>
+                        </div>
+                    </li>
                     {% empty %}
                         <li>No saved recipes.</li>
                     {% endfor %}
@@ -304,23 +341,20 @@
     </div>
 </div>
 
-<!-- JavaScript to toggle description visibility and expand the card -->
 <script>
     function toggleDescription(recipeId) {
         var descElement = document.getElementById('desc-' + recipeId);
-        var recipeCard = descElement.closest('.recipe-card');  // Get the closest recipe card
+        var recipeCard = descElement.closest('.recipe-card');
         
-        // Toggle description visibility
         if (descElement.style.display === "none") {
-            descElement.style.display = "block";  // Show description
-            recipeCard.style.height = 'auto';  // Allow card to expand
+            descElement.style.display = "block";  
+            recipeCard.style.height = 'auto';  
         } else {
-            descElement.style.display = "none";  // Hide description
-            recipeCard.style.height = '';  // Reset height (card will shrink)
+            descElement.style.display = "none"; 
+            recipeCard.style.height = '';  
         }
     }
 
-    // Function to handle sharing the recipe
     function shareRecipe(recipeName) {
         const shareMessage = `Check out this amazing recipe: ${recipeName}!`;
         
@@ -339,6 +373,10 @@
         var myModal = new bootstrap.Modal(document.getElementById('favoritesModal'));
         myModal.show();
     }
+
+    window.addEventListener("load", function () {
+        document.getElementById("loader").style.display = "none";
+    });
 </script>
 
 </body>
