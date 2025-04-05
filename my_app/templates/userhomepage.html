@@ -155,6 +155,28 @@
             padding: 10px;
             transition: padding 0.3s ease-in-out; /* Smooth transition for padding change */
         }
+        .alert-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1050; /* Ensure it stays above other content */
+            width: 80%;
+            max-width: 500px; /* Optional: Set a max-width for better layout */
+            padding: 10px;
+        }
+    
+        .alert-custom {
+            background-color: white;
+            border: 1px solid #28a745;
+            display: flex;
+            align-items: center;
+        }
+    
+        .alert-custom .check-icon {
+            font-size: 1.5rem;
+            margin-right: 10px; /* Space between icon and message */
+        }
     </style>
 </head>
 <div class="sidebar">
@@ -179,9 +201,9 @@
         </form>
 
       </div>
-    <a href="#" onclick="location.reload();">
+      <a href="#" onclick="showFavoritesModal();">
         <i class="bi bi-book" style="color: #FFC107;"></i> My Saved Recipes
-      </a>   
+    </a>  
       <a href="#" data-bs-toggle="modal" data-bs-target="#chefsModal">
         <i class="bi bi-person-check" style="color: #28A745;"></i> View Chefs
     </a>      
@@ -214,17 +236,18 @@
                         <p class="recipe-card-description" id="desc-{{ recipe.id }}" style="display: none;">{{ recipe.description }}</p>
                         
                         <!-- Toggle Button for Description -->
-                        <button class="btn btn-primary w-100 mt-3" onclick="toggleDescription({{ recipe.id }})">
+                        <button class="btn btn-success w-100 mt-3" onclick="toggleDescription({{ recipe.id }})">
                             View Full Recipe
                         </button>
                         
                         <!-- Add to Favorites and Share Recipe Buttons (Vertically Aligned) -->
                         <div class="recipe-card-actions d-flex flex-column gap-2 mt-2">
-                            <form action="#" method="POST">
+                            <form action="{% url 'user_homepage' %}" method="POST">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-warning w-100">Add to Favorites</button>
-                            </form>
-                            <button class="btn btn-info w-100" onclick="shareRecipe('{{ recipe.name }}')">Share Recipe</button>
+                                <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                                <button type="submit" name="add_to_favorites" class="btn btn-warning w-100">Add to Favorites</button>
+                              </form>
+                            <button class="btn btn-info w-100" onclick="shareRecipe('{{ recipe.name }}')">Rate Recipe</button>
                         </div>
                     </div>
                 </div>
@@ -235,6 +258,50 @@
     {% else %}
         <p>You are not a chef and don't have any recipes to display.</p>
     {% endif %}
+</div>
+
+{% if messages %}
+<div class="alert-container">
+    {% for message in messages %}
+        <div class="alert alert-custom alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle check-icon"></i> <!-- Check icon -->
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Modal Structure -->
+<div class="modal fade" id="favoritesModal" tabindex="-1" aria-labelledby="favoritesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="favoritesModalLabel" style="font-weight: 900;">  <i class="bi bi-egg-fried"></i> My Saved Recipes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="favorites-list">
+                    {% for favorite in favorite_recipes %}
+                        <li style="margin-top: 10px;">
+                            {{ favorite.recipe.name }} - {{ favorite.recipe.description }}
+                            <form action="{% url 'delete_favorite' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="_method" value="DELETE">
+                                <input type="hidden" name="recipe_id" value="{{ favorite.recipe.id }}">
+                                <button type="submit" class="btn btn-danger btn-sm" style="margin-top: 10px;">Delete</button>
+                            </form>
+                        </li>
+                    {% empty %}
+                        <li>No saved recipes.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- JavaScript to toggle description visibility and expand the card -->
@@ -266,6 +333,11 @@
         } else {
             alert('Sharing not supported in your browser!');
         }
+    }
+
+    function showFavoritesModal() {
+        var myModal = new bootstrap.Modal(document.getElementById('favoritesModal'));
+        myModal.show();
     }
 </script>
 
