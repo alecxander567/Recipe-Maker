@@ -3,12 +3,12 @@ from django.contrib.auth import authenticate, login, logout
 from .forms import ChefSignUpForm, UserSignUpForm, RecipeForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from .models import Recipe, UserAccount, ChefProfile
+from .models import Recipe, UserAccount, ChefProfile, FavoriteRecipe
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from .forms import ProfileUpdateForm
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
 
 
 # Landingpage
@@ -37,6 +37,7 @@ def chef_homepage(request):
 
     return render(request, 'chefhomepage.html', {'form': form, 'chef_profile': chef_profile})
 
+
 # User homepage
 @login_required
 def user_homepage(request):
@@ -45,21 +46,36 @@ def user_homepage(request):
     is_regular_user = False
     is_chef = False
     
-    try:
-        user_account = UserAccount.objects.get(user=request.user)
-        is_regular_user = True
-    except UserAccount.DoesNotExist:
-        pass
-    
-    try:
-        chef_profile = ChefProfile.objects.get(user=request.user)
-        is_chef = True
-    except ChefProfile.DoesNotExist:
-        pass
-    
+    if request.user.is_authenticated:
+        try:
+            user_account = UserAccount.objects.get(user=request.user)
+            is_regular_user = True
+        except UserAccount.DoesNotExist:
+            pass
+
+        try:
+            chef_profile = ChefProfile.objects.get(user=request.user)
+            is_chef = True
+        except ChefProfile.DoesNotExist:
+            pass
+
     recipes = []
     if chef_profile:
         recipes = Recipe.objects.filter(chef=chef_profile)
+    else:
+        recipes = Recipe.objects.all()
+
+    if request.method == 'POST' and 'add_to_favorites' in request.POST:
+        recipe_id = request.POST.get('recipe_id')
+        recipe = Recipe.objects.get(id=recipe_id)
+
+        FavoriteRecipe.objects.create(user=user_account, recipe=recipe)
+        
+        messages.success(request, 'Recipe added to favorites successfully!')
+
+        return redirect('user_homepage') 
+
+    favorite_recipes = FavoriteRecipe.objects.filter(user=user_account)
 
     if request.method == 'POST' and request.FILES.get('profile_picture'):
         if user_account:
@@ -72,7 +88,7 @@ def user_homepage(request):
             user_account.profile_picture = None
             user_account.save()
         return redirect('user_homepage')
-   
+
     if is_regular_user:
         display_name = user_account.username
         display_email = user_account.email 
@@ -87,6 +103,7 @@ def user_homepage(request):
         'user_account': user_account,
         'chef_profile': chef_profile,
         'recipes': recipes,
+        'favorite_recipes': favorite_recipes,
         'is_regular_user': is_regular_user,
         'is_chef': is_chef,
         'display_name': display_name,
@@ -211,6 +228,36 @@ def delete_recipe(request, recipe_id):
 
     return JsonResponse({"success": False, "error": "Invalid request method."})
 
+
+# Delete a favorite recipe
+def delete_favorite(request):
+    if request.method == 'POST':
+        if request.POST.get('_method') == 'DELETE':
+            recipe_id = request.POST.get('recipe_id')
+            
+            recipe = get_object_or_404(Recipe, id=recipe_id)
+
+            if request.user.is_authenticated:
+                try:
+                    user_account = UserAccount.objects.get(user=request.user)
+                    
+                    favorite_recipe = FavoriteRecipe.objects.filter(user=user_account, recipe=recipe).first()
+                    
+                    if favorite_recipe:
+                        favorite_recipe.delete() 
+                        messages.success(request, "Recipe removed from favorites.")
+                    else:
+                        messages.error(request, "This recipe is not in your favorites.")
+                except UserAccount.DoesNotExist:
+                    messages.error(request, "User account not found.")
+            else:
+                messages.error(request, "You must be logged in to remove favorites.")
+
+        else:
+            messages.error(request, "Invalid method for deleting the favorite.")
+
+        return redirect('user_homepage')
+    
 
 # Log out view
 def user_logout(request):

@@ -9,7 +9,17 @@ class ChefProfile(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+    
+class Recipe(models.Model):
+    chef = models.ForeignKey(ChefProfile, on_delete=models.CASCADE, related_name="recipes", default=1)  # assuming 1 is the default ChefProfile ID
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    image = models.ImageField(upload_to='recipes/')
 
+    def __str__(self):
+        return self.name
+    
 
 class UserAccount(models.Model):
     """Model for Regular Users"""
@@ -18,6 +28,7 @@ class UserAccount(models.Model):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
     profile_picture = models.ImageField(upload_to='user_pics/', null=True, blank=True)
+    favorites = models.ManyToManyField(Recipe, related_name="favorite_recipes", blank=True)
 
     def set_password(self, raw_password):
         """Hashes and saves the password"""
@@ -32,12 +43,11 @@ class UserAccount(models.Model):
         return self.username
     
     
-class Recipe(models.Model):
-    chef = models.ForeignKey(ChefProfile, on_delete=models.CASCADE, related_name="recipes", default=1)  # assuming 1 is the default ChefProfile ID
-    name = models.CharField(max_length=255)
-    description = models.TextField()
-    image = models.ImageField(upload_to='recipes/')
+class FavoriteRecipe(models.Model):
+    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    # You can add more fields like timestamp if needed
 
     def __str__(self):
-        return self.name
+        return f"{self.user.user.username} - {self.recipe.name}"
     
