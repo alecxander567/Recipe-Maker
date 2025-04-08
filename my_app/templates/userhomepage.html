@@ -502,8 +502,6 @@ function rateRecipe(recipeId) {
         return;
     }
 
-    console.log(`Sending rating for recipe with ID: ${recipeId}, Rating: ${numericRating}`);  // Debugging line
-
     fetch('/rate-recipe/', {
         method: 'POST',
         headers: {
