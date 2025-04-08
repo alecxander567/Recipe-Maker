@@ -1,0 +1,532 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Homepage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            background: #CFFFDC
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #253D2C; /* Dark green theme */
+            color: white;
+            position: fixed;
+            padding-top: 20px;
+            text-align: center;
+            overflow-y: auto;
+        }
+        
+        .sidebar .profile {
+            padding: 20px;
+        }
+        
+        .sidebar .profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+        
+        .email-container {
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            text-align: center;
+            padding: 5px;
+            white-space: normal;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        
+        /* Buttons inside the profile section */
+        .sidebar .profile button {
+            margin-top: 8px;
+            width: 100%;
+            font-size: 14px;
+        }
+        
+        /* Sidebar links */
+        .sidebar a {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* Hover effect */
+        .sidebar a:hover {
+            background: #495057; /* Soft dark hover */
+            color: #fff;
+        }
+        #recipeContainer {
+            display: flex;
+            flex-wrap: wrap;  /* Allows the items to wrap into multiple rows */
+            margin-left: 200px;
+        }
+        .recipe-card {
+            width: 22%; /* Adjust the width to fit 4 items per row */
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background-color: #253D2C;
+            transition: all 0.3s ease-in-out;
+            height: 360px;
+        }
+        /* Image styling */
+        .recipe-card-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 2px solid #ddd;
+        }
+        /* Card body */
+        .recipe-card-body {
+            padding: 10px;
+        }
+        
+        /* Title of the recipe */
+        .recipe-card-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        /* Description of the recipe */
+        .recipe-card-description {
+            font-size: 0.9rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        /* Hover effect */
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+    
+        .recipe-card.expanded {
+            height: auto;
+        }
+    
+        .recipe-card-actions {
+            display: flex;
+            flex-direction: column; 
+            gap: 8px; 
+            margin-top: 10px;
+        }
+    
+        .recipe-card-actions .btn {
+            width: 90%;
+            text-align: center;
+            margin: auto;
+        }
+        .recipe-header {
+            margin-left: 250px; /* Adjust this value based on the sidebar width */
+            padding-left: 20px; /* Optional: adds some padding to make it look more centered within the container */
+            font-family: cursive;
+            font-weight: 900;
+        }
+        .recipe-card .recipe-card-body {
+            padding: 10px;
+            transition: padding 0.3s ease-in-out; /* Smooth transition for padding change */
+        }
+        .alert-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1050; /* Ensure it stays above other content */
+            width: 80%;
+            max-width: 500px; /* Optional: Set a max-width for better layout */
+            padding: 10px;
+            animation: fadeOut 3s ease-out 2s forwards; /* Optional: Fade out after delay */
+        }
+        
+        .alert-custom {
+            background-color: white;
+            border: 1px solid #28a745;
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            color: #155724;
+        }
+        
+        .alert-custom .check-icon {
+            font-size: 1.5rem;
+            margin-right: 10px; /* Space between icon and message */
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+                visibility: hidden;
+            }
+        }
+        #loader {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Ensure it's on top */
+        }
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+         @keyframes spin {
+           0% { transform: rotate(0deg); }
+           100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div id="loader">
+    <div class="spinner"></div>
+</div>
+
+<div class="sidebar">
+    <div class="profile">
+    <!-- user_homepage.html -->
+    {% if user_account %}
+        {% if user_account.profile_picture %}
+            <img src="{{ user_account.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+        {% else %}
+            <img src="{% static 'img/user-icon.avif' %}" alt="Default Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+        {% endif %}
+        {% else %}
+            <img src="{% static 'profile_pics/userprof.avif' %}" alt="Default Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+    {% endif %}
+
+        <strong></strong><h5> {{ display_email }}</h5>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" id="profile_picture" name="profile_picture" style="display: none;" onchange="this.form.submit()">
+            <button type="button" class="btn btn-success" onclick="document.getElementById('profile_picture').click()">Update Profile Picture</button>
+            
+            {% if user_account.profile_picture %}
+                <button type="submit" name="remove_picture" class="btn btn-danger" style="margin-top: 5px;">Remove Profile Picture</button>
+            {% endif %}
+        </form>
+    </div>
+
+    <a href="javascript:location.reload();">
+        <i class="bi bi-house-door" style="color: #007BFF;"></i> Home
+    </a>
+    <a href="#" onclick="showFavoritesModal();">
+        <i class="bi bi-book" style="color: #FFC107;"></i> My Saved Recipes
+    </a>  
+    <a href="#" data-bs-toggle="modal" data-bs-target="#chefsModal">
+        <i class="bi bi-person-check" style="color: #28A745;"></i> View Chefs
+    </a>         
+    <a href="">
+        <i class="bi bi-star" style="color: #FFD700;"></i> Trending Recipes
+    </a>
+    <a href="#">
+        <i class="bi bi-people" style="color: #17A2B8;"></i> My Friends
+    </a>
+    <a href="{% url 'logout' %}">
+        <i class="bi bi-box-arrow-right" style="color: #DC3545;"></i> Log out
+    </a>      
+</div>
+
+<div class="container">
+    {% if recipes %}
+    {% if recipes.0.chef %}
+        <img src="{% static 'img/happy-chef-vector-icon.png' %}" class="img-fluid rounded recipe-chef-image" width="50" height="50" style="position: absolute; left: 270px; top: 10px;">
+        <h1 class="recipe-card-chef" style="position: absolute; left: 330px; top: 20px; font-family: cursive; font-weight: 900;">
+            Recipes
+        </h1>
+        <hr style="width: 80%; margin-left: 190px; border: 2px solid; margin-top: 90px;">
+    {% endif %}
+
+    <div id="recipeContainer">
+        {% for recipe in recipes %}
+            <div class="recipe-card">
+                <img src="{{ recipe.image.url }}" class="recipe-card-img" alt="{{ recipe.name }}">
+                <div class="recipe-card-body">
+                    <h5 class="recipe-card-title">{{ recipe.name }}</h5>
+                        
+                    <p class="overall-rating" id="rating-{{ recipe.id }}" style="color: white;">
+                        {% if recipe.average_rating %}
+                            {{ recipe.average_rating }} ★
+                        {% else %}
+                            No ratings yet ★
+                        {% endif %}
+                    </p>
+
+                    <p class="recipe-card-description" id="desc-{{ recipe.id }}" style="display: none;">{{ recipe.description }}</p>
+                        
+                    <button class="btn btn-success w-100" onclick="toggleDescription({{ recipe.id }})">
+                        View Full Recipe
+                    </button>
+                        
+                    <div class="recipe-card-actions d-flex flex-column gap-2 mt-2">
+                        <form action="{% url 'user_homepage' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                            <button type="submit" name="add_to_favorites" class="btn btn-warning w-100">Add to Favorites</button>
+                        </form>
+                        <button class="btn btn-info w-100" onclick="rateRecipe({{ recipe.id }})">Rate Recipe</button>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-center">No recipes available.</p>
+        {% endfor %}
+    </div>
+    {% else %}
+            <p>You are not a chef and don't have any recipes to display.</p>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="favoritesModal" tabindex="-1" aria-labelledby="favoritesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="favoritesModalLabel" style="font-weight: 900;"><i class="bi bi-egg-fried"></i> My Saved Recipes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="favorites-list">
+                    {% for favorite in favorite_recipes %}
+                    <li style="margin-top: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                        <img src="{{ favorite.recipe.image.url }}" alt="{{ favorite.recipe.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-top: 5px;">
+                        <div class="d-flex justify-content-between align-items-start mb-3 p-2 border rounded">
+                            <div style="flex-grow: 1;">
+                                <strong>{{ favorite.recipe.name }}</strong> - {{ favorite.recipe.description }}
+                            </div>
+                            <form action="{% url 'delete_favorite' %}" method="POST" class="ms-3">
+                                {% csrf_token %}
+                                <input type="hidden" name="_method" value="DELETE">
+                                <input type="hidden" name="recipe_id" value="{{ favorite.recipe.id }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </li>
+                    {% empty %}
+                        <li>No saved recipes.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="chefsModal" tabindex="-1" aria-labelledby="chefsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="chefsModalLabel" style="font-weight: 900;">
+            <i class="bi bi-egg-fried"></i> Chefs
+        </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="chefsModalBody">
+          Loading...
+        </div>
+      </div>
+    </div>
+</div>
+
+{% if messages %}
+  <div class="alert-container">
+    {% for message in messages %}
+      <div class="alert-custom">
+        <span class="check-icon text-success">✔</span>
+        <div>{{ message }}</div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<script>
+window.addEventListener("load", function () {
+    document.getElementById("loader").style.display = "none";
+});
+
+const recipeRatings = {};
+const chefsModal = document.getElementById('chefsModal');
+
+function toggleDescription(recipeId) {
+    var descElement = document.getElementById('desc-' + recipeId);
+    var recipeCard = descElement.closest('.recipe-card');
+        
+    if (descElement.style.display === "none") {
+        descElement.style.display = "block";  
+        recipeCard.style.height = 'auto';  
+    } else {
+        descElement.style.display = "none"; 
+        recipeCard.style.height = '';  
+    }
+}
+
+function showFavoritesModal() {
+    var myModal = new bootstrap.Modal(document.getElementById('favoritesModal'));
+    myModal.show();
+}
+
+chefsModal.addEventListener('show.bs.modal', function () {
+    fetch('/get-chefs/')
+        .then(response => response.json())
+        .then(data => {
+            console.log("Fetched chefs:", data); 
+            const body = document.getElementById('chefsModalBody');
+            if (data.chefs.length > 0) {
+                let html = '<div class="list-group">';
+                data.chefs.forEach(chef => {
+                    console.log("Chef:", chef);
+                    html += `
+                        <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                            <div class="d-flex align-items-center">
+                                <img src="${chef.profile_picture}" alt="${chef.full_name}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                <strong>Chef ${chef.full_name}</strong>
+                            </div>
+                            <button class="btn btn-sm btn-success" onclick="viewRecipes('${chef.full_name}')">View Recipes</button>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                body.innerHTML = html;
+            } else {
+                body.innerHTML = 'No chefs found.';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('chefsModalBody').innerHTML = 'Error loading chefs.';
+        });
+});
+    
+function viewRecipes(chefName) {
+    fetch(`/get_chef_recipes/${chefName}/`)
+        .then(response => response.json())
+        .then(data => {
+            const recipeContainer = document.getElementById('recipeContainer');
+            if (data.recipes.length > 0) {
+                let html = '';
+                data.recipes.forEach(recipe => {
+                    const averageRating = recipe.average_rating ? recipe.average_rating : "No ratings yet";    
+                    html += `
+                        <div class="recipe-card">
+                            <img src="${recipe.image_url}" class="recipe-card-img" alt="${recipe.name}">
+                            <div class="recipe-card-body">
+                            <h5 class="recipe-card-title">${recipe.name}</h5>
+                                <p class="overall-rating" id="rating-${recipe.id}" style="color: white;">
+                                    ${averageRating} ★
+                                </p>
+                                <p class="recipe-card-description" id="desc-${recipe.id}" style="display: none;">${recipe.description}</p>
+                                <button class="btn btn-success w-100" onclick="toggleDescription(${recipe.id})">
+                                    View Full Recipe
+                                </button>
+                                <div class="recipe-card-actions d-flex flex-column gap-2 mt-2">
+                                    <form action="{% url 'user_homepage' %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="recipe_id" value="${recipe.id}">
+                                        <button type="submit" name="add_to_favorites" class="btn btn-warning w-100">Add to Favorites</button>
+                                    </form>
+                                    <button class="btn btn-info w-100" onclick="rateRecipe('${recipe.name}')">Rate Recipe</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                recipeContainer.innerHTML = html;
+            } else {
+                recipeContainer.innerHTML = '<p>No recipes available for this chef.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('recipeContainer').innerHTML = 'Error loading recipes.';
+        });
+}
+
+function getCSRFToken() {
+    let csrfToken = null;
+    const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfTokenElement) {
+        csrfToken = csrfTokenElement.value;
+    }
+    return csrfToken;
+}
+
+function rateRecipe(recipeId) {
+    const numericRating = prompt(`Rate this recipe from 1 to 5:`);
+
+    if (!numericRating || isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
+        alert('Please enter a valid number between 1 and 5.');
+        return;
+    }
+
+    const csrfToken = getCSRFToken(); 
+
+    if (!csrfToken) {
+        console.error("CSRF token is missing");
+        return;
+    }
+
+    console.log(`Sending rating for recipe with ID: ${recipeId}, Rating: ${numericRating}`);  // Debugging line
+
+    fetch('/rate-recipe/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken 
+        },
+        body: JSON.stringify({
+            recipeId: recipeId,
+            rating: numericRating
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.average) {
+            console.log(`New average rating: ${data.average}`);
+            document.getElementById(`rating-${recipeId}`).innerText = `${data.average} ★`;
+        } else {
+            console.log('Error:', data.error);
+        }
+    })
+    .catch(error => console.log('Request failed', error));
+}
+</script>
+
+</body>
+</html>

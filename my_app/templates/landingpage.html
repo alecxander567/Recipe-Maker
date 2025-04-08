@@ -1,0 +1,335 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Maker</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Pop-up alert container (centers the alert on screen) */
+        .pop-up-alert-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1050;  /* Ensures it stays on top of other content */
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        /* Pop-up alert styles */
+        .pop-up-alert {
+            background-color: #28a745;  /* Default green background for success */
+            color: white;
+            padding: 20px;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Success alert (green) */
+        .alert-success {
+            background-color: #28a745;
+        }
+        
+        /* Error alert (red) */
+        .alert-error {
+            background-color: #dc3545;  /* Red background for errors */
+        }
+        
+        /* Close button for alerts */
+        .close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+        }
+        
+    </style>
+</head>
+<body style="background: #E6F4EA;">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light" style="box-shadow: 0 0 10px; background: #2E6F40">
+        <div class="container">
+            <a class="navbar-brand text-light" href="#" style="font-weight: 900;">
+                <i class="bi bi-egg-fried"></i> Recipe Maker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item text-light">
+                        <a class="nav-link text-light" href="#" data-bs-toggle="modal" data-bs-target="#userLoginModal">Log in</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="#" data-bs-toggle="modal" data-bs-target="#chefLoginModal">Log in as Chef</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link text-light" href="#about">About</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <header class="text-white text-center py-5" style="margin: auto; width: 90%; margin-top: 30px; border-radius: 20px; 
+            background: linear-gradient(175deg, rgba(37, 61, 44, 0.7), rgba(46, 111, 64, 0.7)), 
+            url('{% static "img/bg.jfif" %}');
+            background-position: center; text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3); height: 75vh;">
+        <div class="container d-flex flex-column justify-content-center align-items-center text-center">
+            <img src="{% static 'img/chef-icon.jpg' %}" alt="Chef Icon" class="img-fluid mb-3" width="150" height="150" style="border-radius: 50%; margin-top: 50px;">
+            <h1 style="font-weight: 900; font-family: cursive; font-size: 50px;">Welcome to Recipe Maker</h1>
+            <p class="lead">Create, share, and explore delicious recipes with ease!</p>
+        </div>
+    </header>
+    
+    <!-- Features Section -->
+    <section id="features" style="color: white; width: 90%; margin: auto; padding: 10px; padding-bottom: 10px;">
+        <div class="container text-center">
+            <hr>
+            <h2 class="text-dark" style="font-weight: 900;">Features</h2>
+            <hr style="color: black;">
+            <div class="row mt-4 justify-content-center" style="gap: 10px;">
+                <div class="col-md-3 text-center text-white p-4 h-100" style="width: 350px; background: linear-gradient(175deg, #253D2C, #2E6F40, #68BA7F); text-shadow: 2px 2px 4px rgba(0, 0 , 0, 0.3);">
+                    <h4 style="font-weight: 900; font-family: cursive;">Easy to Use</h4>
+                    <i class="bi bi-hand-index-thumb text-primary" style="font-size: 3rem;"></i>
+                    <i class="bi bi-phone text-primary" style="font-size: 3rem; margin-left: -10px;"></i>
+                    <p>Simple and intuitive interface to add and manage recipes.</p>
+                </div>
+                <div class="col-md-3 text-center text-white p-4 h-100" style="width: 350px; background: linear-gradient(175deg, #253D2C, #2E6F40, #68BA7F); text-shadow: 2px 2px 4px rgba(0, 0 , 0, 0.3);">
+                    <h4 style="font-weight: 900; font-family: cursive;">Share Recipes</h4>
+                    <i class="bi bi-share-fill text-success" style="font-size: 3rem; border-radius: 50%;"></i>
+                    <p>Share your favorite recipes with the community.</p>
+                </div>
+                <div class="col-md-3 text-center text-white p-4 h-100" style="width: 350px; background: linear-gradient(175deg, #253D2C, #2E6F40, #68BA7F); text-shadow: 2px 2px 4px rgba(0, 0 , 0, 0.3);">
+                    <h4 style="font-weight: 900; font-family: cursive;">Explore More</h4>
+                    <i class="bi bi-compass text-danger" style="font-size: 3rem;"></i>
+                    <p>Discover new and trending recipes from others.</p>
+                </div>
+            </div>
+        </div>            
+    </section>   
+
+<!-- About Section -->
+<section id="about" class="py-5" style="background: #E6F4EA;">
+    <div class="container">
+        <h2 class="text-center" style="font-weight: 900;">About Recipe Maker</h2>
+        <hr style="color: black;">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <p class="lead">
+                    Welcome to <strong>Recipe Maker</strong>, your go-to platform for creating, sharing, and exploring delicious recipes! 
+                    Whether you're a home cook or a professional chef, our platform makes it easy to organize your favorite recipes.
+                </p>
+                <p>
+                    Our mission is to bring food lovers together by providing an intuitive space where you can save, 
+                    share, and discover amazing recipes from around the world.
+                </p>
+            </div>
+            <div class="col-md-6 text-center" style="position: relative; overflow: hidden; border-radius: 30px; margin-top: 30px;">
+                <!-- Gradient Overlay -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(175deg, rgba(38, 194, 129, 0.7), rgba(62, 139, 57, 0.7)); z-index: 1;"></div>
+                
+                <!-- Image -->
+                <img src="{% static 'img/about-removebg-preview.png' %}" class="img-fluid" alt="About Recipe Maker" width="350" height="350" style="border-radius: 30px; position: relative; z-index: 2;">
+            </div>
+        </div>
+    </div>
+</section>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3">
+        <p>&copy; 2024 Recipe Maker. All Rights Reserved.</p>
+    </footer>
+
+<!-- Chef Login Modal -->
+<div class="modal fade" id="chefLoginModal" tabindex="-1" aria-labelledby="chefLoginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chefLoginModalLabel" style="font-weight: 900;">Chef Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <img src="{% static 'img/chef-icon.jpg' %}" alt="Chef Icon" class="img-fluid mb-3" width="80">
+                </div>
+                <form id="chefLoginForm" method="POST" action="{% url 'chef_login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn w-100 text-light" style="font-weight: 900; background: #2E6F40;">Login</button>
+                    <div class="text-center mt-3">
+                        <p>Don't have an account yet?</p>
+                        <button type="button" class="btn w-100 btn-outline-success" style="font-weight: 900;" 
+                            data-bs-toggle="modal" data-bs-target="#chefSignupModal" data-bs-dismiss="modal">Sign up</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chef Sign-Up Modal -->
+<div class="modal fade" id="chefSignupModal" tabindex="-1" aria-labelledby="chefSignupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chefSignupModalLabel" style="font-weight: 900;">Chef Sign-Up</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <img src="{% static 'img/chef-icon.jpg' %}" alt="Chef Icon" class="img-fluid mb-3" width="80">
+                </div>
+                <form method="POST" action="{% url 'chef_signup' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="signup-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" name="username" placeholder="Enter your name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password1" placeholder="Create a password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-password2" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" name="password2" placeholder="Confirm your password" required>
+                    </div>
+                    <button type="submit" class="btn w-100 text-light" style="font-weight: 900; background:  #2E6F40;">Sign Up</button>
+                    <div class="text-center mt-3">
+                        <p>Already have an account?</p>
+                        <button type="button" class="btn btn-outline-success w-100" style="font-weight: 900;" 
+                            data-bs-toggle="modal" data-bs-target="#chefLoginModal" data-bs-dismiss="modal">Log in</button>
+                    </div>
+                </form>                             
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Login Modal -->
+<div class="modal fade" id="userLoginModal" tabindex="-1" aria-labelledby="userLoginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userLoginModalLabel" style="font-weight: 900;">User Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <img src="{% static 'img/chef-icon.jpg' %}" alt="User Icon" class="img-fluid mb-3" width="80">
+                </div>
+                <form method="POST" action="{% url 'user_login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="user-email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" id="user-email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="user-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" id="user-password" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn w-100" style="font-weight: 900; background:  #2E6F40;; color: white;">Login</button>
+                    <div class="text-center mt-3">
+                        <p>Don't have an account yet?</p>
+                        <button type="button" class="btn btn-outline-success w-100" style="font-weight: 900;" 
+                            data-bs-toggle="modal" data-bs-target="#userSignupModal" data-bs-dismiss="modal">Sign up</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Sign-Up Modal -->
+<div class="modal fade" id="userSignupModal" tabindex="-1" aria-labelledby="userSignupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userSignupModalLabel" style="font-weight: 900;">User Sign-Up</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <img src="{% static 'img/chef-icon.jpg' %}" alt="User Icon" class="img-fluid mb-3" width="80">
+                </div>
+                <form method="POST" action="{% url 'user_signup' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="signup-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" name="username" placeholder="Enter your name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password1" placeholder="Create a password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-password2" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" name="password2" placeholder="Confirm your password" required>
+                    </div>
+                    <button type="submit" class="btn w-100 text-light" style="font-weight: 900; background: #2E6F40;">Sign Up</button>
+                    <div class="text-center mt-3">
+                        <p>Already have an account?</p>
+                        <button type="button" class="btn btn-outline-success w-100" style="font-weight: 900;" 
+                            data-bs-toggle="modal" data-bs-target="#userLoginModal" data-bs-dismiss="modal">Log in</button>
+                    </div>
+                </form>                
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if error %}
+  <div class="pop-up-alert-container">
+    <div class="pop-up-alert alert-error">
+      {{ error }}
+      <button type="button" class="close" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+  </div>
+{% elif messages %}
+  <div class="pop-up-alert-container">
+    {% for message in messages %}
+      <div class="pop-up-alert alert-{{ message.tags }}">
+        <span>{{ message }}</span>
+        <button type="button" class="close" onclick="this.parentElement.style.display='none'">&times;</button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<script>
+    function closeAlert() {
+        const alert = document.querySelector('.pop-up-alert');
+        if (alert) {
+          alert.style.display = 'none';
+        }
+      }
+
+</script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
