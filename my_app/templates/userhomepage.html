@@ -218,26 +218,25 @@
 
 <div class="sidebar">
     <div class="profile">
-    <!-- user_homepage.html -->
-    {% if user_account %}
-        {% if user_account.profile_picture %}
-            <img src="{{ user_account.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
-        {% else %}
-            <img src="{% static 'img/user-icon.avif' %}" alt="Default Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
-        {% endif %}
+        {% if user_account %}
+            {% if user_account.profile_picture %}
+                <img src="{{ user_account.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+            {% else %}
+                <img src="{% static 'img/user-icon.avif' %}" alt="Default Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+            {% endif %}
         {% else %}
             <img src="{% static 'profile_pics/userprof.avif' %}" alt="Default Profile Picture" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
-    {% endif %}
+        {% endif %}
 
-        <strong></strong><h5> {{ display_email }}</h5>
+        <h5>{{ display_email }}</h5>
 
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="file" id="profile_picture" name="profile_picture" style="display: none;" onchange="this.form.submit()">
             <button type="button" class="btn btn-success" onclick="document.getElementById('profile_picture').click()">Update Profile Picture</button>
-            
+
             {% if user_account.profile_picture %}
-                <button type="submit" name="remove_picture" class="btn btn-danger" style="margin-top: 5px;">Remove Profile Picture</button>
+                <button type="submit" name="remove_picture" class="btn btn-danger mt-2">Remove Profile Picture</button>
             {% endif %}
         </form>
     </div>
@@ -254,7 +253,7 @@
     <a href="#" onclick="viewTrendingRecipes()">
         <i class="bi bi-star" style="color: #FFD700;"></i> Trending Recipes
     </a>
-    <a href="#">
+    <a href="#" data-bs-toggle="modal" data-bs-target="#usersModal">
         <i class="bi bi-people" style="color: #17A2B8;"></i> My Friends
     </a>
     <a href="{% url 'logout' %}">
@@ -364,6 +363,21 @@
       </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="usersModal" tabindex="-1" aria-labelledby="usersModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="usersModalLabel">My Friends</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="usersModalBody">
+          <!-- User data will be inserted here -->
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% if messages %}
   <div class="alert-container">
@@ -566,6 +580,42 @@ function viewTrendingRecipes() {
             document.getElementById('recipeContainer').innerHTML = '<p>Error loading trending recipes.</p>';
         });
 }
+
+usersModal.addEventListener('show.bs.modal', function () {
+    fetch('/get-users/') 
+        .then(response => response.json())
+        .then(data => {
+            
+            const body = document.getElementById('usersModalBody');  
+            
+            if (data.users.length > 0) { 
+                let html = '<div class="list-group">'; 
+                data.users.forEach(user => {
+                    console.log("User:", user);
+
+                    const profilePicture = user.profile_picture ? user.profile_picture : '/static/img/user-icon.avif';
+
+                    html += `
+                        <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                            <div class="d-flex align-items-center">
+                                <img src="${profilePicture}" alt="${user.full_name}'s Profile" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                <strong>${user.full_name}</strong>  <!-- Display the user's name -->
+                            </div>
+                            <span>${user.user__email}</span>  <!-- Display the user's email -->
+                        </div>
+                    `;
+                });
+                html += '</div>'; 
+                body.innerHTML = html; 
+            } else {
+                body.innerHTML = 'No users found.';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('usersModalBody').innerHTML = 'Error loading users.';
+        });
+});
 </script>
 
 </body>
