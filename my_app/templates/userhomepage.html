@@ -251,7 +251,7 @@
     <a href="#" data-bs-toggle="modal" data-bs-target="#chefsModal">
         <i class="bi bi-person-check" style="color: #28A745;"></i> View Chefs
     </a>         
-    <a href="">
+    <a href="#" onclick="viewTrendingRecipes()">
         <i class="bi bi-star" style="color: #FFD700;"></i> Trending Recipes
     </a>
     <a href="#">
@@ -523,6 +523,48 @@ function rateRecipe(recipeId) {
         }
     })
     .catch(error => console.log('Request failed', error));
+}
+
+function viewTrendingRecipes() {
+    fetch('/get_trending_recipes/')
+        .then(response => response.json())
+        .then(data => {
+            const recipeContainer = document.getElementById('recipeContainer');
+            if (data.recipes.length > 0) {
+                let html = '';
+                data.recipes.forEach(recipe => {
+                    const ratingText = recipe.average_rating ? `${recipe.average_rating} ★` : "No ratings yet ★";
+                    html += `
+                        <div class="recipe-card">
+                            <img src="${recipe.image_url}" class="recipe-card-img" alt="${recipe.name}">
+                            <div class="recipe-card-body">
+                                <h5 class="recipe-card-title">${recipe.name}</h5>
+                                <p class="overall-rating" style="color: white;">${ratingText}</p>
+                                <p class="recipe-card-description" id="desc-${recipe.id}" style="display: none;">${recipe.description}</p>
+                                <button class="btn btn-success w-100" onclick="toggleDescription(${recipe.id})">
+                                    View Full Recipe
+                                </button>
+                                <div class="recipe-card-actions d-flex flex-column gap-2 mt-2">
+                                    <form action="{% url 'user_homepage' %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="recipe_id" value="${recipe.id}">
+                                        <button type="submit" name="add_to_favorites" class="btn btn-warning w-100">Add to Favorites</button>
+                                    </form>
+                                    <button class="btn btn-info w-100" onclick="rateRecipe(${recipe.id})">Rate Recipe</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                recipeContainer.innerHTML = html;
+            } else {
+                recipeContainer.innerHTML = '<p>No trending recipes found.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('recipeContainer').innerHTML = '<p>Error loading trending recipes.</p>';
+        });
 }
 </script>
 

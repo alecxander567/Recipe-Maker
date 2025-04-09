@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             display: flex;
@@ -189,6 +190,30 @@
        0% { transform: rotate(0deg); }
        100% { transform: rotate(360deg); }
     }
+    .recipe-item {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;  /* Space between items horizontally */
+        width: auto;
+        margin-bottom: 20px; /* Space between the items vertically */
+    }
+    
+    .recipe-item img {
+        border-radius: 8px;
+        object-fit: cover;
+        width: 150px;  /* Image width */
+        height: 100px;  /* Image height */
+        margin-right: 15px;
+    }
+    
+    #topRatedRecipesContainer {
+        display: flex;             
+        flex-wrap: wrap;             
+        gap: 20px;                  
+        overflow-x: auto;           
+        padding-bottom: 10px;        
+        margin-top: 20px;          
+    }
         
     </style>
 </head>
@@ -221,15 +246,14 @@
         <a href="#" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
             <i class="bi bi-plus-circle"></i> Add new recipe
         </a>
-        <a href="#"><i class="bi bi-star"></i> Top rating recipes</a>
+        <a href="#" id="topRatedBtn"><i class="bi bi-star"></i> Top rating recipes</a>
         <a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Log out</a>
     </div>
-
 
     <div class="content">
         <h1 style="font-family: cursive; font-weight: 900;">
             <img src="{% static 'img/happy-chef-vector-icon.png' %}" class="img-fluid rounded" width="50" height="50">
-            Welcome Chef, what's cooking?
+            Your Recipes
         </h1>
         <hr style="border: 2px solid;">
 
@@ -316,10 +340,28 @@
   </div>
 {% endif %}
 
+<div class="modal fade" id="topRatedModal" tabindex="-1" aria-labelledby="topRatedModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="topRatedModalLabel" style="font-weight: 900;"> <i class="bi bi-egg-fried"></i> Top Rated Recipes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <canvas id="ratingChart"></canvas> 
+                <div id="topRatedRecipesContainer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     window.addEventListener("load", function () {
       document.getElementById("loader").style.display = "none";
   });
+
+  let ratingChart = null;
 
   document.addEventListener("DOMContentLoaded", function () {
     fetchRecipes();
@@ -454,6 +496,67 @@ function fetchRecipes() {
     .catch(error => console.error("Error fetching recipes:", error));
 }
 
+
+document.getElementById('topRatedBtn').addEventListener('click', function() {
+    console.log('Top Rated button clicked');
+    
+    fetch('/get_top_rated_recipes/')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Data received:', data);
+            const recipes = data.recipes;
+            const labels = recipes.map(recipe => recipe.name);
+            const ratings = recipes.map(recipe => recipe.average_rating);
+
+            const ctx = document.getElementById('ratingChart').getContext('2d');
+            const ratingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ratings',
+                        data: ratings,
+                        backgroundColor: 'rgba(34, 139, 34, 0.2)',
+                        borderColor: 'rgba(34, 139, 34, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            const recipesContainer = document.getElementById('topRatedRecipesContainer');
+            recipesContainer.innerHTML = '';
+
+            recipes.forEach(recipe => {
+                const recipeItem = document.createElement('div');
+                recipeItem.classList.add('recipe-item');
+
+                const img = document.createElement('img');
+                img.src = recipe.image;
+                img.alt = recipe.name;
+
+                const recipeDetails = document.createElement('div');
+                recipeDetails.innerHTML = `<strong>${recipe.name}</strong><br><span>Rating: ${recipe.average_rating}</span>`;
+
+                recipeItem.appendChild(img);
+                recipeItem.appendChild(recipeDetails);
+
+                recipesContainer.appendChild(recipeItem);
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('topRatedModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Error fetching top-rated recipes:', error);
+        });
+});
 </script>
 
 </body>
