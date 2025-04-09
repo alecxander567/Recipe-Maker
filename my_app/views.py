@@ -230,11 +230,11 @@ def add_recipe(request):
             recipe = form.save(commit=False)
             recipe.chef = user_account
             recipe.save()
-            return redirect('chef_homepage')  # ✅ Redirect to home after POST
+            return redirect('chef_homepage')
     else:
         form = RecipeForm()
 
-    return render(request, 'chefhomepage.html', {'form': form})  # ✅
+    return render(request, 'chefhomepage.html', {'form': form})
 
 
 # Display recipes
@@ -441,19 +441,16 @@ def get_top_rated_recipes(request):
     return JsonResponse({'recipes': recipes_data})
 
 
-# View regular users function
 def get_users(request):
-    # Fetch all regular users (role='user')
     users = UserAccount.objects.filter(role='user').select_related('user').values('user__username', 'user__email', 'profile_picture')
     
-    # Loop through users to handle profile pictures
     for user in users:
         if user["profile_picture"]:
             user['profile_picture'] = f'/media/{user["profile_picture"]}'
         else:
-            user['profile_picture'] = None  # Use a default profile picture if no image exists
+            user['profile_picture'] = None 
 
-        user['full_name'] = user['user__username']  # We assume the username is the full name
+        user['full_name'] = user['user__username']
 
     return JsonResponse({'users': list(users)})
     
