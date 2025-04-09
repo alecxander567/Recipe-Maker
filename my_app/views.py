@@ -7,6 +7,7 @@ from .forms import ChefSignUpForm, UserSignUpForm, RecipeForm, ProfileUpdateForm
 from .models import Recipe, UserAccount, FavoriteRecipe, Rating
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Avg
 import json
 
 
@@ -404,6 +405,41 @@ def rate_recipe(request):
             return JsonResponse({'error': 'Invalid request'}, status=400)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+# Get the most trend recipes(regular users view)
+def get_trending_recipes(request):
+    recipes = Recipe.objects.annotate(
+        avg_rating=Avg('ratings__value')
+    ).order_by('-avg_rating')[:10]
+
+    data = {
+        'recipes': [
+            {
+                'id': recipe.id,
+                'name': recipe.name,
+                'description': recipe.description,
+                'image_url': recipe.image.url if recipe.image else '',
+                'average_rating': round(recipe.avg_rating, 1) if recipe.avg_rating else None
+            }
+            for recipe in recipes
+        ]
+    }
+
+    return JsonResponse(data)
+
+
+# Get the top rated recipes(Chef's view)
+def get_top_rated_recipes(request):
+    top_rated_recipes = Recipe.objects.annotate(avg_rating=Avg('ratings__value')).order_by('-avg_rating')[:5]
+
+    recipes_data = [{
+        'name': recipe.name,
+        'average_rating': round(recipe.avg_rating, 1) if recipe.avg_rating else None,
+        'image': recipe.image.url if recipe.image else None,
+    } for recipe in top_rated_recipes]
+
+    return JsonResponse({'recipes': recipes_data})
 
 
 # Log out view
