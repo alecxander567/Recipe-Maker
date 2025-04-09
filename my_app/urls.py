@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import landingpage, chef_signup, chef_login, chef_homepage, user_signup, user_login, user_homepage, user_logout, add_recipe, get_recipes, edit_recipe, delete_recipe, delete_favorite, get_chefs, get_chef_recipes, rate_recipe, get_trending_recipes, get_top_rated_recipes
+from .views import landingpage, chef_signup, chef_login, chef_homepage, user_signup, user_login, user_homepage, user_logout, add_recipe, get_recipes, edit_recipe, delete_recipe, delete_favorite, get_chefs, get_chef_recipes, rate_recipe, get_trending_recipes, get_top_rated_recipes, get_users
 
 urlpatterns = [
     path('landingpage/', landingpage, name='landingpage'),
@@ -19,5 +19,6 @@ urlpatterns = [
     path('rate-recipe/', rate_recipe, name='rate_recipe'),
     path('get_trending_recipes/', get_trending_recipes, name='get_trending_recipes'),
     path('get_top_rated_recipes/', get_top_rated_recipes, name='get_top_rated_recipes'),
+    path('get-users/', get_users, name='get_users'),
     path('logout/', user_logout, name='logout'),  
 ]

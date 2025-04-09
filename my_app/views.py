@@ -10,7 +10,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Avg
 import json
 
-
 # Landingpage
 def landingpage(request):
     return render(request, 'landingpage.html')
@@ -214,7 +213,6 @@ def user_login(request):
     return render(request, "landingpage.html")
 
 
-# Adding recipe function
 @login_required
 def add_recipe(request):
     try:
@@ -232,11 +230,11 @@ def add_recipe(request):
             recipe = form.save(commit=False)
             recipe.chef = user_account
             recipe.save()
-            return redirect('chef_homepage')
+            return redirect('chef_homepage')  # ✅ Redirect to home after POST
     else:
         form = RecipeForm()
 
-    return render(request, 'add_recipe.html', {'form': form})
+    return render(request, 'chefhomepage.html', {'form': form})  # ✅
 
 
 # Display recipes
@@ -251,13 +249,12 @@ def get_recipes(request):
         return JsonResponse({'error': 'You are not authorized to view recipes'}, status=403)
 
 
-# Edit Recipe
-@csrf_exempt
 @login_required
 def edit_recipe(request, recipe_id):
     if request.method == "POST":
         recipe = get_object_or_404(Recipe, id=recipe_id)
 
+        # Check if user is authorized
         try:
             user_account = UserAccount.objects.get(user=request.user)
             if user_account.role != 'chef':
@@ -267,7 +264,8 @@ def edit_recipe(request, recipe_id):
 
         if recipe.chef != user_account:
             return JsonResponse({"success": False, "error": "You cannot edit a recipe that is not yours."})
-        
+
+        # Update recipe fields
         recipe.name = request.POST.get("name")
         recipe.description = request.POST.get("description")
 
@@ -275,7 +273,8 @@ def edit_recipe(request, recipe_id):
             recipe.image = request.FILES["image"]
 
         recipe.save()
-        return JsonResponse({"success": True})
+
+        return JsonResponse({"success": True, "message": "Recipe updated successfully!"})
 
     return JsonResponse({"success": False, "error": "Invalid request method"})
 
@@ -350,7 +349,7 @@ def get_chefs(request):
     return JsonResponse({'chefs': list(chefs)})
 
 
-
+# Get chef recipes 
 def get_chef_recipes(request, chef_name):
     try:
         user_account = UserAccount.objects.get(user__username=chef_name)
@@ -442,6 +441,23 @@ def get_top_rated_recipes(request):
     return JsonResponse({'recipes': recipes_data})
 
 
+# View regular users function
+def get_users(request):
+    # Fetch all regular users (role='user')
+    users = UserAccount.objects.filter(role='user').select_related('user').values('user__username', 'user__email', 'profile_picture')
+    
+    # Loop through users to handle profile pictures
+    for user in users:
+        if user["profile_picture"]:
+            user['profile_picture'] = f'/media/{user["profile_picture"]}'
+        else:
+            user['profile_picture'] = None  # Use a default profile picture if no image exists
+
+        user['full_name'] = user['user__username']  # We assume the username is the full name
+
+    return JsonResponse({'users': list(users)})
+    
+    
 # Log out view
 def user_logout(request):
     logout(request)
