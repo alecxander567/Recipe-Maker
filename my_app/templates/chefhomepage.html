@@ -273,9 +273,12 @@
             height: 180px;
         }
 
-        h1 {
-            margin-top: 60px;
-            font-size: 30px;
+        h1,hr {
+            display: none;
+        }
+
+        .btn {
+            width: 50%;
         }
     }
         
@@ -317,11 +320,11 @@
     </div>
 
     <div class="content">
-        <h1 style="font-family: cursive; font-weight: 900;">
-            <img src="{% static 'img/happy-chef-vector-icon.png' %}" class="img-fluid rounded" width="50" height="50">
+        <img src="{% static 'img/happy-chef-vector-icon.png' %}" class="img-fluid rounded recipe-chef-image" width="50" height="50" style="position: absolute; left: 270px; top: 10px;">
+        <h1 class="recipe-card-chef" style="position: absolute; left: 330px; top: 20px; font-family: cursive; font-weight: 900;">
             Your Recipes
         </h1>
-    <hr style="border: 2px solid; margin-top: 10px;">
+        <hr style="width: 100%; margin-left: 10px; border: 2px solid; margin-top: 60px;">
 
         <div id="recipeContainer" style="margin-top: 20px;"></div>
     </div>
