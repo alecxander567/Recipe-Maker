@@ -60,6 +60,22 @@
         .bi-plus-circle { color: #28a745; } /* Green */
         .bi-star { color: #ffc107; } /* Gold */
         .bi-box-arrow-right { color: #dc3545; } /* Red */
+
+        .toggle-btn {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: #253D2C;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            z-index: 1000;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
         .content {
             margin-left: 260px;
             padding: 20px;
@@ -214,6 +230,53 @@
         padding-bottom: 10px;        
         margin-top: 20px;          
     }
+
+    @media (max-width: 768px) {
+        .toggle-btn {
+            display: block;
+        }
+    
+        .sidebar {
+            display: none;
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+    
+        .sidebar.active {
+            display: block;
+        }
+    
+        body {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .content {
+            margin-left: 0;
+            padding: 15px;
+        }
+    
+        #recipeContainer {
+            justify-content: center; /* Center cards on small screens */
+        }
+    
+        .recipe-card {
+            width: 80%; /* Make cards take more width on small screens */
+            height: auto;
+            margin: auto;
+            margin-bottom: 10px;
+        }
+    
+        .recipe-card-img {
+            height: 180px;
+        }
+
+        h1 {
+            margin-top: 55px;
+        }
+    }
         
     </style>
 </head>
@@ -222,6 +285,8 @@
   <div id="loader">
     <div class="spinner"></div>
   </div>
+
+  <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
 
     <div class="sidebar">
       <div class="profile">
@@ -360,6 +425,10 @@
     window.addEventListener("load", function () {
       document.getElementById("loader").style.display = "none";
   });
+
+  function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('active');
+  }
 
   let ratingChart = null;
 

@@ -77,6 +77,22 @@
             background: #495057; /* Soft dark hover */
             color: #fff;
         }
+
+        .toggle-btn {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: #253D2C;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            z-index: 1000;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
         #recipeContainer {
             display: flex;
             flex-wrap: wrap;  /* Allows the items to wrap into multiple rows */
@@ -209,12 +225,71 @@
            0% { transform: rotate(0deg); }
            100% { transform: rotate(360deg); }
         }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+        
+            .toggle-btn {
+                display: block;
+            }
+        
+            .sidebar {
+                display: none;
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+        
+            .sidebar.active {
+                display: block;
+            }
+        
+            .sidebar a {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            #recipeContainer {
+                margin-left: 0; /* Removes left margin for smaller screens */
+                justify-content: center; /* Center cards on mobile */
+                margin-top: 90px;
+            }
+        
+            .recipe-header {
+                margin-left: 0;
+                padding: 10px 15px;
+                text-align: center;
+            }
+        
+            .recipe-card {
+                width: 90%; /* Make cards full width with margins on smaller screens */
+                height: auto;
+            }
+        
+            .recipe-card-img {
+                height: 180px; /* Optional: taller image for better visibility */
+            }
+        
+            .recipe-card .recipe-card-body {
+                padding: 15px;
+            }
+
+            h1,hr {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
 <div id="loader">
     <div class="spinner"></div>
 </div>
+
+<button class="toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
 
 <div class="sidebar">
     <div class="profile">
@@ -369,7 +444,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="usersModalLabel">My Friends</h5>
+          <h5 class="modal-title" id="usersModalLabel" style="font-weight: 900;"><i class="bi bi-egg-fried"></i> My Friends</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" id="usersModalBody">
@@ -391,9 +466,14 @@
 {% endif %}
 
 <script>
+
 window.addEventListener("load", function () {
     document.getElementById("loader").style.display = "none";
 });
+
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('active');
+  }
 
 const recipeRatings = {};
 const chefsModal = document.getElementById('chefsModal');
