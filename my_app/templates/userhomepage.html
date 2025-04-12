@@ -249,7 +249,6 @@
         }
 
         @media (max-width: 768px) {
-
             #recipeContainer {
                 margin-left: 0; /* Removes left margin for smaller screens */
                 justify-content: center; /* Center cards on mobile */
@@ -474,6 +473,10 @@ window.addEventListener("load", function () {
 
 function toggleSidebar() {
     document.querySelector('.sidebar').classList.toggle('active');
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    }); 
   }
 
 const recipeRatings = {};

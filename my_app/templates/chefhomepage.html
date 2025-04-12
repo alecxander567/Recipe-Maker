@@ -438,6 +438,10 @@
 
   function toggleSidebar() {
     document.querySelector('.sidebar').classList.toggle('active');
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    }); 
   }
 
   let ratingChart = null;
