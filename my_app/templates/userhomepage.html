@@ -406,7 +406,7 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="_method" value="DELETE">
                                 <input type="hidden" name="recipe_id" value="{{ favorite.recipe.id }}">
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm w-auto"> <i class="bi bi-trash"></i></button>
                             </form>
                         </div>
                     </li>
@@ -438,7 +438,6 @@
       </div>
     </div>
 </div>
-
 
 <div class="modal fade" id="usersModal" tabindex="-1" aria-labelledby="usersModalLabel" aria-hidden="true">
     <div class="modal-dialog">
